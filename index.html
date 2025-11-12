@@ -24,7 +24,7 @@
             <h2>لعبة مستوى الشيطان</h2>
             
             <div class="character-preview">
-                <div id="previewCharacter" class="character-demo"></div>
+                <canvas id="characterPreviewCanvas" width="100" height="100"></canvas>
             </div>
             
             <button id="startButton" class="btn btn-primary">
@@ -40,11 +40,11 @@
             <div class="game-stats">
                 <div class="stat">
                     <span>🚀</span>
-                    <span>5 مستويات</span>
+                    <span>100 مستوى</span>
                 </div>
                 <div class="stat">
                     <span>⭐</span>
-                    <span>تحدي عالي</span>
+                    <span>تحدي شديد</span>
                 </div>
             </div>
         </div>
@@ -56,8 +56,8 @@
             <h2><i class="fas fa-book"></i> كيفية اللعب</h2>
             <div class="instructions">
                 <div class="instruction-item">
-                    <span>⬅️ ➡️</span>
-                    <p>استخدم مفاتيح الأسهم لليسار واليمين للتحرك</p>
+                    <span>➡️ ⬅️</span>
+                    <p>استخدم مفاتيح الأسهم لليمين واليسار للتحرك</p>
                 </div>
                 <div class="instruction-item">
                     <span>⬆️ أو مسافة</span>
@@ -65,11 +65,11 @@
                 </div>
                 <div class="instruction-item">
                     <span>🎯</span>
-                    <p>وصل إلى الهدف الأخضر لإنهاء المستوى</p>
+                    <p>وصل إلى الهدف لإنهاء المستوى</p>
                 </div>
                 <div class="instruction-item">
-                    <span>⚠️</span>
-                    <p>تجنب العقبات الحمراء والمسامير</p>
+                    <span>💣</span>
+                    <p>تجنب القنابل والعقبات القاتلة</p>
                 </div>
                 <div class="instruction-item">
                     <span>🔻</span>
@@ -98,14 +98,21 @@
                     <i class="fas fa-medal"></i>
                     <div class="achievement-info">
                         <h3>المحترف</h3>
-                        <p>أكمل 3 مستويات</p>
+                        <p>أكمل 25 مستوى</p>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <i class="fas fa-medal"></i>
+                    <div class="achievement-info">
+                        <h3>الأسطورة</h3>
+                        <p>أكمل 50 مستوى</p>
                     </div>
                 </div>
                 <div class="achievement-item">
                     <i class="fas fa-medal"></i>
                     <div class="achievement-info">
                         <h3>البطل</h3>
-                        <p>أكمل جميع المستويات</p>
+                        <p>أكمل 100 مستوى</p>
                     </div>
                 </div>
             </div>
@@ -131,24 +138,29 @@
                     <span id="soundValue">70%</span>
                 </div>
                 <div class="setting-item">
+                    <label for="backgroundImage">صورة الخلفية:</label>
+                    <input type="file" id="backgroundImage" accept="image/*">
+                </div>
+                <div class="setting-item">
+                    <label for="characterImage">صورة الشخصية:</label>
+                    <input type="file" id="characterImage" accept="image/*">
+                </div>
+                <div class="setting-item">
+                    <label for="customMusic">موسيقى الخلفية:</label>
+                    <input type="file" id="customMusic" accept="audio/*">
+                </div>
+                <div class="setting-item">
                     <label for="language">اللغة:</label>
                     <select id="language">
                         <option value="ar">العربية</option>
                         <option value="en">English</option>
                     </select>
                 </div>
-                <div class="setting-item">
-                    <label for="theme">السمة:</label>
-                    <select id="theme">
-                        <option value="default">افتراضي</option>
-                        <option value="dark">مظلم</option>
-                        <option value="light">فاتح</option>
-                    </select>
-                </div>
             </div>
             <div class="settings-buttons">
                 <button id="saveSettings" class="btn btn-primary">حفظ</button>
                 <button id="cancelSettings" class="btn btn-secondary">إلغاء</button>
+                <button id="resetSettings" class="btn btn-secondary">إعادة الضبط</button>
             </div>
         </div>
     </div>
@@ -182,19 +194,19 @@
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">الوقت:</span>
-                    <span id="timeDisplay" class="stat-value">60</span>
+                    <span id="timeDisplay" class="stat-value">90</span>
                 </div>
             </div>
         </div>
 
         <!-- منطقة اللعبة -->
-        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        <canvas id="gameCanvas" width="1200" height="600"></canvas>
 
         <!-- عناصر التحكم للجوال -->
         <div class="mobile-controls">
-            <button id="leftBtn" class="control-btn">⬅️</button>
-            <button id="jumpBtn" class="control-btn">⬆️</button>
             <button id="rightBtn" class="control-btn">➡️</button>
+            <button id="jumpBtn" class="control-btn">⬆️</button>
+            <button id="leftBtn" class="control-btn">⬅️</button>
         </div>
     </div>
 
@@ -260,6 +272,23 @@
             </div>
         </div>
     </div>
+
+    <!-- عناصر الصوت -->
+    <audio id="backgroundMusic" loop>
+        <source src="" type="audio/mpeg">
+    </audio>
+    <audio id="jumpSound">
+        <source src="" type="audio/mpeg">
+    </audio>
+    <audio id="collisionSound">
+        <source src="" type="audio/mpeg">
+    </audio>
+    <audio id="levelUpSound">
+        <source src="" type="audio/mpeg">
+    </audio>
+    <audio id="bombSound">
+        <source src="" type="audio/mpeg">
+    </audio>
 
     <script src="game.js"></script>
 </body>
