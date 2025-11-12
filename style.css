@@ -5,6 +5,17 @@
     box-sizing: border-box;
 }
 
+:root {
+    --primary-color: #FF6B6B;
+    --secondary-color: #4ECDC4;
+    --accent-color: #FFD166;
+    --dark-color: #2E294E;
+    --light-color: #F7F7F7;
+    --success-color: #06D6A0;
+    --danger-color: #EF476F;
+    --warning-color: #FF9E00;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -25,6 +36,7 @@ body {
     align-items: center;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     transition: opacity 0.5s ease;
+    z-index: 10;
 }
 
 .screen.hidden {
@@ -41,6 +53,7 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     max-width: 500px;
     width: 90%;
+    position: relative;
 }
 
 /* الأزرار */
@@ -54,12 +67,15 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     min-width: 200px;
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
     color: white;
     box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
 }
@@ -80,6 +96,35 @@ body {
     transform: translateY(-2px);
 }
 
+/* الأيقونات */
+.icon-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.header-icons {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+}
+
 /* معاينة الشخصية */
 .character-preview {
     margin: 2rem 0;
@@ -91,38 +136,10 @@ body {
     50% { transform: translateY(-20px); }
 }
 
-.character-demo {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto;
-    background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+#characterPreviewCanvas {
     border-radius: 20px;
-    position: relative;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-.character-demo::before {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: white;
-    border-radius: 50%;
-    top: 20px;
-    left: 15px;
-    box-shadow: 25px 0 white;
-}
-
-.character-demo::after {
-    content: '';
-    position: absolute;
-    width: 30px;
-    height: 10px;
-    background: transparent;
-    border-bottom: 3px solid white;
-    border-radius: 50%;
-    bottom: 20px;
-    left: 25px;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* إحصائيات اللعبة */
@@ -165,6 +182,104 @@ body {
     min-width: 60px;
 }
 
+/* الإنجازات */
+.achievements-list {
+    margin: 2rem 0;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.achievement-item.completed {
+    background: rgba(6, 214, 160, 0.2);
+    border: 2px solid var(--success-color);
+}
+
+.achievement-item i {
+    font-size: 2rem;
+    color: var(--accent-color);
+}
+
+.achievement-item.completed i {
+    color: var(--success-color);
+}
+
+.achievement-info h3 {
+    margin: 0;
+    color: white;
+}
+
+.achievement-info p {
+    margin: 0;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+/* الإعدادات */
+.settings-options {
+    margin: 2rem 0;
+    text-align: right;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    flex-wrap: wrap;
+}
+
+.setting-item label {
+    font-weight: bold;
+    min-width: 120px;
+}
+
+.setting-item input[type="range"] {
+    width: 150px;
+    margin: 0 1rem;
+}
+
+.setting-item input[type="file"] {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+    min-width: 150px;
+}
+
+.setting-item select {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+    min-width: 120px;
+}
+
+.setting-item select option {
+    background: var(--dark-color);
+    color: white;
+}
+
+.settings-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 /* رأس اللعبة */
 .game-header {
     position: fixed;
@@ -175,14 +290,20 @@ body {
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(10px);
     z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-controls {
+    display: flex;
+    gap: 1rem;
 }
 
 .stats {
     display: flex;
-    justify-content: space-around;
+    gap: 2rem;
     align-items: center;
-    max-width: 800px;
-    margin: 0 auto;
 }
 
 .stat-item {
@@ -206,7 +327,7 @@ body {
 #gameCanvas {
     border: 3px solid #fff;
     border-radius: 10px;
-    background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     margin-top: 80px;
 }
@@ -255,7 +376,7 @@ body {
 .reward {
     font-size: 2rem;
     font-weight: bold;
-    color: #FFD700;
+    color: var(--accent-color);
     margin: 1rem 0;
     animation: bounce 1s infinite;
 }
@@ -263,6 +384,29 @@ body {
 @keyframes bounce {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
+}
+
+/* خيارات الإيقاف المؤقت */
+.pause-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+/* أزرار نهاية اللعبة */
+.game-over-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* أزرار الخروج */
+.exit-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
 }
 
 /* تصميم متجاوب */
@@ -291,6 +435,25 @@ body {
     .mobile-controls {
         display: flex;
     }
+
+    .game-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .settings-buttons {
+        flex-direction: column;
+    }
+
+    .exit-buttons {
+        flex-direction: column;
+    }
 }
 
 @media (max-width: 480px) {
@@ -308,13 +471,18 @@ body {
         flex-direction: column;
         text-align: center;
     }
+
+    .achievement-item {
+        flex-direction: column;
+        text-align: center;
+    }
 }
 
 /* تأثيرات النص */
 h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
-    background: linear-gradient(45deg, #FF6B6B, #FFD700);
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -328,10 +496,49 @@ h2 {
 
 /* شاشة إكمال المستوى */
 #levelCompleteScreen .screen-content {
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.9));
+    background: linear-gradient(135deg, rgba(6, 214, 160, 0.9), rgba(78, 205, 196, 0.9));
 }
 
 /* شاشة انتهاء اللعبة */
 #gameOverScreen .screen-content {
-    background: linear-gradient(135deg, rgba(244, 67, 54, 0.9), rgba(211, 47, 47, 0.9));
+    background: linear-gradient(135deg, rgba(239, 71, 111, 0.9), rgba(255, 107, 107, 0.9));
+}
+
+/* شاشة الخروج */
+#exitScreen .screen-content {
+    background: linear-gradient(135deg, rgba(46, 41, 78, 0.9), rgba(102, 126, 234, 0.9));
+}
+
+/* شاشة الإعدادات */
+#settingsScreen .screen-content {
+    background: linear-gradient(135deg, rgba(255, 209, 102, 0.9), rgba(255, 107, 107, 0.9));
+}
+
+/* شريط التمرير */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
 }
