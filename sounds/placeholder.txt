@@ -1,0 +1,5 @@
+This directory will contain game sound files:
+- jump.mp3
+- collision.mp3  
+- level-up.mp3
+- background-music.mp3
