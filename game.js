@@ -119,13 +119,25 @@ class LevelDevilGame {
         this.screens = {
             start: document.getElementById('startScreen'),
             instructions: document.getElementById('instructionsScreen'),
+            achievements: document.getElementById('achievementsScreen'),
+            settings: document.getElementById('settingsScreen'),
             game: document.getElementById('gameScreen'),
+            pause: document.getElementById('pauseScreen'),
             gameOver: document.getElementById('gameOverScreen'),
-            levelComplete: document.getElementById('levelCompleteScreen')
+            levelComplete: document.getElementById('levelCompleteScreen'),
+            exit: document.getElementById('exitScreen')
+        };
+        
+        this.settings = {
+            musicVolume: 50,
+            soundVolume: 70,
+            language: 'ar',
+            theme: 'default'
         };
         
         this.initializeGame();
         this.setupEventListeners();
+        this.loadSettings();
     }
 
     initializeGame() {
@@ -136,23 +148,24 @@ class LevelDevilGame {
         this.level = 1;
         this.timeLeft = 60;
         this.gameTime = 0;
+        this.isPaused = false;
         
         // إعدادات اللاعب
         this.player = {
             x: 50,
-            y: 300,
+            y: 200,
             width: 40,
             height: 40,
             velocityX: 0,
             velocityY: 0,
-            speed: 5,
-            jumpPower: -15,
+            speed: 6,
+            jumpPower: -12,
             isJumping: false,
             color: '#FF6B6B'
         };
         
         // الفيزياء
-        this.gravity = 0.8;
+        this.gravity = 0.5;
         this.friction = 0.8;
         
         // عناصر اللعبة
@@ -184,19 +197,69 @@ class LevelDevilGame {
             if (e.code === 'KeyR' && this.gameState === 'gameOver') {
                 this.restartGame();
             }
+            
+            if (e.code === 'Escape' && this.gameState === 'playing') {
+                this.pauseGame();
+            }
+            
+            if (e.code === 'Escape' && this.gameState === 'paused') {
+                this.resumeGame();
+            }
         });
         
         document.addEventListener('keyup', (e) => {
             this.keys[e.code] = false;
         });
         
-        // أحداث الأزرار
+        // أحداث الأزرار الرئيسية
         document.getElementById('startButton').addEventListener('click', () => this.startGame());
         document.getElementById('instructionsButton').addEventListener('click', () => this.showInstructions());
+        document.getElementById('achievementsButton').addEventListener('click', () => this.showAchievements());
+        document.getElementById('settingsBtn').addEventListener('click', () => this.showSettings());
+        document.getElementById('exitBtn').addEventListener('click', () => this.showExitConfirm());
+        
+        // أحداث الأزرار الثانوية
         document.getElementById('backButton').addEventListener('click', () => this.showStartScreen());
+        document.getElementById('backFromAchievements').addEventListener('click', () => this.showStartScreen());
         document.getElementById('restartButton').addEventListener('click', () => this.restartGame());
         document.getElementById('menuButton').addEventListener('click', () => this.showStartScreen());
         document.getElementById('nextLevelButton').addEventListener('click', () => this.nextLevel());
+        
+        // أحداث التحكم في اللعبة
+        document.getElementById('pauseBtn').addEventListener('click', () => this.pauseGame());
+        document.getElementById('restartBtn').addEventListener('click', () => this.restartGame());
+        document.getElementById('menuBtn').addEventListener('click', () => this.showStartScreen());
+        
+        // أحداث شاشة الإيقاف المؤقت
+        document.getElementById('resumeBtn').addEventListener('click', () => this.resumeGame());
+        document.getElementById('restartFromPause').addEventListener('click', () => this.restartGame());
+        document.getElementById('menuFromPause').addEventListener('click', () => this.showStartScreen());
+        
+        // أحداث شاشة الخروج
+        document.getElementById('confirmExit').addEventListener('click', () => this.exitGame());
+        document.getElementById('cancelExit').addEventListener('click', () => this.showStartScreen());
+        
+        // أحداث الإعدادات
+        document.getElementById('musicVolume').addEventListener('input', (e) => {
+            document.getElementById('musicValue').textContent = e.target.value + '%';
+            this.settings.musicVolume = e.target.value;
+        });
+        
+        document.getElementById('soundVolume').addEventListener('input', (e) => {
+            document.getElementById('soundValue').textContent = e.target.value + '%';
+            this.settings.soundVolume = e.target.value;
+        });
+        
+        document.getElementById('language').addEventListener('change', (e) => {
+            this.settings.language = e.target.value;
+        });
+        
+        document.getElementById('theme').addEventListener('change', (e) => {
+            this.settings.theme = e.target.value;
+        });
+        
+        document.getElementById('saveSettings').addEventListener('click', () => this.saveSettings());
+        document.getElementById('cancelSettings').addEventListener('click', () => this.showStartScreen());
         
         // أحداث تحكم الجوال
         document.getElementById('leftBtn').addEventListener('touchstart', () => this.keys['ArrowLeft'] = true);
@@ -220,6 +283,27 @@ class LevelDevilGame {
         });
     }
 
+    loadSettings() {
+        const savedSettings = localStorage.getItem('levelDevilSettings');
+        if (savedSettings) {
+            this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+        }
+        
+        // تطبيق الإعدادات
+        document.getElementById('musicVolume').value = this.settings.musicVolume;
+        document.getElementById('soundVolume').value = this.settings.soundVolume;
+        document.getElementById('language').value = this.settings.language;
+        document.getElementById('theme').value = this.settings.theme;
+        
+        document.getElementById('musicValue').textContent = this.settings.musicVolume + '%';
+        document.getElementById('soundValue').textContent = this.settings.soundVolume + '%';
+    }
+
+    saveSettings() {
+        localStorage.setItem('levelDevilSettings', JSON.stringify(this.settings));
+        this.showStartScreen();
+    }
+
     showScreen(screenName) {
         Object.values(this.screens).forEach(screen => {
             screen.classList.add('hidden');
@@ -235,17 +319,47 @@ class LevelDevilGame {
     showStartScreen() {
         this.showScreen('start');
         this.gameState = 'menu';
+        this.isPaused = false;
     }
 
     showInstructions() {
         this.showScreen('instructions');
     }
 
+    showAchievements() {
+        this.showScreen('achievements');
+    }
+
+    showSettings() {
+        this.showScreen('settings');
+    }
+
+    showExitConfirm() {
+        this.showScreen('exit');
+    }
+
     startGame() {
         this.showScreen('game');
         this.gameState = 'playing';
+        this.isPaused = false;
         this.initializeLevel();
         this.gameLoop();
+    }
+
+    pauseGame() {
+        if (this.gameState === 'playing') {
+            this.gameState = 'paused';
+            this.isPaused = true;
+            this.showScreen('pause');
+        }
+    }
+
+    resumeGame() {
+        if (this.gameState === 'paused') {
+            this.gameState = 'playing';
+            this.isPaused = false;
+            this.showScreen('game');
+        }
     }
 
     gameOver() {
@@ -279,13 +393,20 @@ class LevelDevilGame {
         this.startGame();
     }
 
+    exitGame() {
+        // يمكن إضافة أي تنظيف هنا قبل الخروج
+        window.close(); // قد لا يعمل في جميع المتصفحات
+        // بديل: إعادة توجيه إلى صفحة أخرى أو إظهار رسالة
+        alert('شكراً للعب! يمكنك إغلاق النافذة الآن.');
+    }
+
     initializeLevel() {
         this.platforms = [];
         this.obstacles = [];
         this.collectibles = [];
         
         this.player.x = 50;
-        this.player.y = 300;
+        this.player.y = 200;
         this.player.velocityX = 0;
         this.player.velocityY = 0;
         this.player.isJumping = false;
@@ -298,45 +419,47 @@ class LevelDevilGame {
         const levelDesigns = {
             1: {
                 platforms: [
-                    { x: 0, y: 400, width: 200, height: 20 },
-                    { x: 300, y: 350, width: 200, height: 20 },
-                    { x: 600, y: 300, width: 150, height: 20 }
+                    { x: 0, y: 350, width: 200, height: 20 },
+                    { x: 250, y: 300, width: 150, height: 20 },
+                    { x: 450, y: 250, width: 200, height: 20 },
+                    { x: 700, y: 300, width: 100, height: 20 }
                 ],
                 obstacles: [
-                    { x: 250, y: 380, width: 30, height: 30 },
-                    { x: 500, y: 330, width: 30, height: 30 }
+                    { x: 220, y: 280, width: 25, height: 25 },
+                    { x: 420, y: 230, width: 25, height: 25 }
                 ],
-                goal: { x: 700, y: 250, width: 40, height: 40 }
+                goal: { x: 750, y: 250, width: 40, height: 40 }
             },
             2: {
                 platforms: [
-                    { x: 0, y: 400, width: 150, height: 20 },
-                    { x: 200, y: 350, width: 100, height: 20 },
-                    { x: 350, y: 300, width: 150, height: 20 },
-                    { x: 550, y: 250, width: 100, height: 20 }
+                    { x: 0, y: 350, width: 150, height: 20 },
+                    { x: 200, y: 320, width: 100, height: 20 },
+                    { x: 350, y: 280, width: 120, height: 20 },
+                    { x: 520, y: 320, width: 100, height: 20 },
+                    { x: 670, y: 280, width: 130, height: 20 }
                 ],
                 obstacles: [
-                    { x: 180, y: 330, width: 30, height: 30 },
-                    { x: 500, y: 230, width: 30, height: 30 },
-                    { x: 320, y: 280, width: 30, height: 30 }
+                    { x: 180, y: 300, width: 25, height: 25 },
+                    { x: 480, y: 300, width: 25, height: 25 },
+                    { x: 650, y: 260, width: 25, height: 25 }
                 ],
-                goal: { x: 650, y: 200, width: 40, height: 40 }
+                goal: { x: 750, y: 240, width: 40, height: 40 }
             },
             3: {
                 platforms: [
-                    { x: 0, y: 400, width: 100, height: 20 },
-                    { x: 150, y: 350, width: 80, height: 20 },
-                    { x: 280, y: 300, width: 70, height: 20 },
-                    { x: 400, y: 250, width: 80, height: 20 },
-                    { x: 530, y: 200, width: 70, height: 20 }
+                    { x: 0, y: 350, width: 100, height: 20 },
+                    { x: 150, y: 320, width: 80, height: 20 },
+                    { x: 280, y: 290, width: 70, height: 20 },
+                    { x: 400, y: 320, width: 80, height: 20 },
+                    { x: 530, y: 280, width: 70, height: 20 },
+                    { x: 650, y: 250, width: 150, height: 20 }
                 ],
                 obstacles: [
-                    { x: 130, y: 330, width: 25, height: 25 },
-                    { x: 260, y: 280, width: 25, height: 25 },
-                    { x: 380, y: 230, width: 25, height: 25 },
-                    { x: 510, y: 180, width: 25, height: 25 }
+                    { x: 130, y: 300, width: 25, height: 25 },
+                    { x: 380, y: 300, width: 25, height: 25 },
+                    { x: 510, y: 260, width: 25, height: 25 }
                 ],
-                goal: { x: 650, y: 150, width: 40, height: 40 }
+                goal: { x: 750, y: 220, width: 40, height: 40 }
             }
         };
         
@@ -389,6 +512,8 @@ class LevelDevilGame {
     }
 
     updatePhysics() {
+        if (this.isPaused) return;
+        
         this.player.velocityY += this.gravity;
         
         this.player.x += this.player.velocityX;
@@ -396,15 +521,16 @@ class LevelDevilGame {
         
         this.player.velocityX *= this.friction;
         
+        // حدود الشاشة الجانبية
         if (this.player.x < 0) this.player.x = 0;
         if (this.player.x > this.canvas.width - this.player.width) {
             this.player.x = this.canvas.width - this.player.width;
         }
         
-        if (this.player.y > this.canvas.height - this.player.height) {
-            this.player.y = this.canvas.height - this.player.height;
-            this.player.velocityY = 0;
-            this.player.isJumping = false;
+        // التحقق من السقوط من المنصة
+        if (this.player.y > this.canvas.height) {
+            this.loseLife();
+            return;
         }
         
         this.handlePlatformCollisions();
@@ -414,18 +540,23 @@ class LevelDevilGame {
 
     handlePlatformCollisions() {
         this.player.isJumping = true;
+        let onPlatform = false;
         
         for (let platform of this.platforms) {
             if (this.isColliding(this.player, platform)) {
+                // الاصطدام من الأعلى
                 if (this.player.velocityY > 0 && this.player.y + this.player.height - this.player.velocityY <= platform.y) {
                     this.player.y = platform.y - this.player.height;
                     this.player.velocityY = 0;
                     this.player.isJumping = false;
+                    onPlatform = true;
                 }
+                // الاصطدام من الأسفل
                 else if (this.player.velocityY < 0 && this.player.y - this.player.velocityY >= platform.y + platform.height) {
                     this.player.y = platform.y + platform.height;
                     this.player.velocityY = 0;
                 }
+                // الاصطدام من الجانبين
                 else if (this.player.velocityX !== 0) {
                     if (this.player.x + this.player.width - this.player.velocityX <= platform.x) {
                         this.player.x = platform.x - this.player.width;
@@ -434,6 +565,11 @@ class LevelDevilGame {
                     }
                 }
             }
+        }
+        
+        // إذا لم يكن على منصة وكان تحت الشاشة، يخسر حياة
+        if (!onPlatform && this.player.y > this.canvas.height - 100 && this.player.velocityY > 0) {
+            // يمكن إضافة تحذير مرئي هنا
         }
     }
 
@@ -464,8 +600,9 @@ class LevelDevilGame {
         this.updateUI();
         this.sounds.collision.play();
         
+        // إعادة تعيين موقع اللاعب
         this.player.x = 50;
-        this.player.y = 300;
+        this.player.y = 200;
         this.player.velocityX = 0;
         this.player.velocityY = 0;
         this.player.isJumping = false;
@@ -488,7 +625,7 @@ class LevelDevilGame {
     }
 
     updateTimer() {
-        if (this.gameState === 'playing') {
+        if (this.gameState === 'playing' && !this.isPaused) {
             this.gameTime += 1/60;
             
             if (this.gameTime >= 1) {
@@ -524,20 +661,39 @@ class LevelDevilGame {
         
         this.drawPlayer();
         this.drawEffects();
+        
+        // رسم تحذير السقوط
+        if (this.player.y > this.canvas.height - 150 && this.player.velocityY > 0) {
+            this.drawFallWarning();
+        }
     }
 
     drawBackground() {
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        // خلفية عرضية مع تدرج لوني
+        const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, 0);
         gradient.addColorStop(0, '#87CEEB');
-        gradient.addColorStop(1, '#98FB98');
+        gradient.addColorStop(0.5, '#98FB98');
+        gradient.addColorStop(1, '#87CEEB');
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
+        // سحب متحركة
+        const time = Date.now() / 1000;
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        
+        for (let i = 0; i < 5; i++) {
+            const x = (time * 20 + i * 100) % (this.canvas.width + 200) - 100;
+            const y = 50 + Math.sin(time + i) * 10;
+            this.drawCloud(x, y, 40 + i * 5);
+        }
+    }
+
+    drawCloud(x, y, size) {
         this.ctx.beginPath();
-        this.ctx.arc(100, 80, 40, 0, Math.PI * 2);
-        this.ctx.arc(150, 70, 30, 0, Math.PI * 2);
-        this.ctx.arc(200, 90, 35, 0, Math.PI * 2);
+        this.ctx.arc(x, y, size, 0, Math.PI * 2);
+        this.ctx.arc(x + size * 0.8, y - size * 0.2, size * 0.8, 0, Math.PI * 2);
+        this.ctx.arc(x + size * 1.6, y, size * 0.7, 0, Math.PI * 2);
+        this.ctx.arc(x + size * 0.8, y + size * 0.2, size * 0.8, 0, Math.PI * 2);
         this.ctx.fill();
     }
 
@@ -548,9 +704,11 @@ class LevelDevilGame {
         this.ctx.shadowBlur = 10;
         this.ctx.shadowOffsetY = 5;
         
+        // جسم اللاعب
         this.ctx.fillStyle = this.player.color;
         this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
         
+        // تفاصيل الوجه
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.fillRect(this.player.x + 8, this.player.y + 10, 8, 8);
         this.ctx.fillRect(this.player.x + 24, this.player.y + 10, 8, 8);
@@ -559,6 +717,7 @@ class LevelDevilGame {
         this.ctx.fillRect(this.player.x + 10, this.player.y + 12, 4, 4);
         this.ctx.fillRect(this.player.x + 26, this.player.y + 12, 4, 4);
         
+        // الفم
         this.ctx.strokeStyle = '#000000';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
@@ -575,14 +734,17 @@ class LevelDevilGame {
         this.ctx.shadowBlur = 5;
         this.ctx.shadowOffsetY = 3;
         
+        // المنصة الرئيسية
         this.ctx.fillStyle = '#8B4513';
         this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
         
+        // تفاصيل الخشب
         this.ctx.fillStyle = '#A0522D';
         for (let i = 0; i < platform.width; i += 10) {
             this.ctx.fillRect(platform.x + i, platform.y, 5, platform.height);
         }
         
+        // حافة المنصة
         this.ctx.fillStyle = '#654321';
         this.ctx.fillRect(platform.x, platform.y, platform.width, 3);
         
@@ -596,9 +758,11 @@ class LevelDevilGame {
         this.ctx.shadowBlur = 10;
         this.ctx.shadowOffsetY = 3;
         
+        // جسم العقبة
         this.ctx.fillStyle = '#FF0000';
         this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         
+        // شكل المسمار
         this.ctx.fillStyle = '#8B0000';
         this.ctx.beginPath();
         this.ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y);
@@ -607,6 +771,7 @@ class LevelDevilGame {
         this.ctx.closePath();
         this.ctx.fill();
         
+        // تأثير لامع
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         this.ctx.fillRect(obstacle.x + 2, obstacle.y + 2, obstacle.width/2 - 2, 5);
         
@@ -620,6 +785,7 @@ class LevelDevilGame {
         this.ctx.shadowBlur = 15;
         this.ctx.shadowOffsetY = 5;
         
+        // الهدف
         this.ctx.fillStyle = '#00FF00';
         this.ctx.beginPath();
         this.ctx.arc(
@@ -631,10 +797,12 @@ class LevelDevilGame {
         );
         this.ctx.fill();
         
+        // تفاصيل الهدف
         this.ctx.strokeStyle = '#FFFFFF';
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
         
+        // تأثير وميض
         const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.7;
         this.ctx.fillStyle = `rgba(255, 255, 255, ${pulse * 0.5})`;
         this.ctx.beginPath();
@@ -650,6 +818,21 @@ class LevelDevilGame {
         this.ctx.restore();
     }
 
+    drawFallWarning() {
+        this.ctx.save();
+        
+        const warningAlpha = Math.sin(Date.now() / 100) * 0.5 + 0.5;
+        this.ctx.fillStyle = `rgba(255, 0, 0, ${warningAlpha * 0.3})`;
+        this.ctx.fillRect(0, this.canvas.height - 50, this.canvas.width, 50);
+        
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${warningAlpha})`;
+        this.ctx.font = 'bold 20px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('⚠️ احذر! السقوط يؤدي إلى الخسارة', this.canvas.width/2, this.canvas.height - 20);
+        
+        this.ctx.restore();
+    }
+
     drawEffects() {
         if (this.gameState === 'playing' && this.timeLeft <= 10) {
             this.ctx.save();
@@ -661,7 +844,7 @@ class LevelDevilGame {
     }
 
     gameLoop() {
-        if (this.gameState === 'playing') {
+        if (this.gameState === 'playing' && !this.isPaused) {
             this.handleInput();
             this.updatePhysics();
             this.updateTimer();
