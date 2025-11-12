@@ -1,0 +1,6 @@
+This directory will contain game image files:
+- character.png
+- background.jpg
+- platform.png
+- obstacle.png
+- goal.png
