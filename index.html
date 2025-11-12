@@ -13,7 +13,7 @@
             <h1>🎮 Level Devil Game</h1>
             <h2>لعبة مستوى الشيطان</h2>
             <div class="character-preview">
-                <img src="images/character.png" alt="الشخصية" id="previewCharacter">
+                <div id="previewCharacter" class="character-demo"></div>
             </div>
             <button id="startButton" class="btn btn-primary">ابدأ اللعبة</button>
             <button id="instructionsButton" class="btn btn-secondary">كيفية اللعب</button>
@@ -114,20 +114,6 @@
             <button id="nextLevelButton" class="btn btn-primary">المستوى التالي</button>
         </div>
     </div>
-
-    <!-- عناصر الصوت -->
-    <audio id="backgroundMusic" loop>
-        <source src="sounds/background-music.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="jumpSound">
-        <source src="sounds/jump.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="collisionSound">
-        <source src="sounds/collision.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="levelUpSound">
-        <source src="sounds/level-up.mp3" type="audio/mpeg">
-    </audio>
 
     <script src="game.js"></script>
 </body>
