@@ -56,7 +56,7 @@ class SoundGenerator {
         if (!this.audioContext) return;
         
         const times = [0, 0.1, 0.2, 0.3];
-        const frequencies = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        const frequencies = [523.25, 659.25, 783.99, 1046.50];
         
         times.forEach((time, index) => {
             const oscillator = this.audioContext.createOscillator();
@@ -78,7 +78,6 @@ class SoundGenerator {
     createBackgroundMusic() {
         if (!this.audioContext) return;
         
-        // موسيقى خلفية بسيطة
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
         const filter = this.audioContext.createBiquadFilter();
@@ -93,7 +92,6 @@ class SoundGenerator {
         
         gainNode.gain.value = 0.1;
         
-        // نمط لحني بسيط
         const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
         let currentTime = this.audioContext.currentTime;
         
@@ -102,7 +100,6 @@ class SoundGenerator {
             currentTime += duration;
         };
         
-        // لحن متكرر
         setInterval(() => {
             currentTime = this.audioContext.currentTime;
             notes.forEach((note, index) => {
@@ -113,6 +110,8 @@ class SoundGenerator {
         oscillator.start();
     }
 }
+
+// الفئة الرئيسية للعبة
 class LevelDevilGame {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -127,7 +126,6 @@ class LevelDevilGame {
         
         this.initializeGame();
         this.setupEventListeners();
-        this.loadAssets();
     }
 
     initializeGame() {
@@ -166,22 +164,16 @@ class LevelDevilGame {
         // الإدخال
         this.keys = {};
         
-        // الصوت
-        this.sounds = {
-            background: document.getElementById('backgroundMusic'),
-            jump: document.getElementById('jumpSound'),
-            collision: document.getElementById('collisionSound'),
-            levelUp: document.getElementById('levelUpSound')
-        };
+        // مولد الأصوات البديل
+        this.soundGenerator = new SoundGenerator();
         
-        // ضبط مستوى الصوت
-        this.setVolume(0.3);
-    }
-
-    setVolume(volume) {
-        Object.values(this.sounds).forEach(sound => {
-            sound.volume = volume;
-        });
+        // عناصر الصوت البديلة
+        this.sounds = {
+            background: { play: () => this.soundGenerator.createBackgroundMusic() },
+            jump: { play: () => this.soundGenerator.createJumpSound() },
+            collision: { play: () => this.soundGenerator.createCollisionSound() },
+            levelUp: { play: () => this.soundGenerator.createLevelUpSound() }
+        };
     }
 
     setupEventListeners() {
@@ -189,7 +181,6 @@ class LevelDevilGame {
         document.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
             
-            // إعادة التشغيل بالضغط على R
             if (e.code === 'KeyR' && this.gameState === 'gameOver') {
                 this.restartGame();
             }
@@ -229,46 +220,15 @@ class LevelDevilGame {
         });
     }
 
-    loadAssets() {
-        // تحميل الصور
-        this.images = {
-            player: new Image(),
-            platform: new Image(),
-            obstacle: new Image(),
-            goal: new Image(),
-            background: new Image()
-        };
-        
-        // تعيين مصادر الصور
-        this.images.player.src = 'images/character.png';
-        this.images.platform.src = 'images/platform.png';
-        this.images.obstacle.src = 'images/obstacle.png';
-        this.images.goal.src = 'images/goal.png';
-        this.images.background.src = 'images/background.jpg';
-        
-        // التحقق من تحميل الصور
-        Object.values(this.images).forEach(img => {
-            img.onerror = () => {
-                console.warn('Failed to load image:', img.src);
-                // استخدام ألوان بديلة إذا فشل تحميل الصور
-            };
-        });
-    }
-
     showScreen(screenName) {
-        // إخفاء جميع الشاشات
         Object.values(this.screens).forEach(screen => {
             screen.classList.add('hidden');
         });
         
-        // إظهار الشاشة المطلوبة
         this.screens[screenName].classList.remove('hidden');
         
-        // إدارة الصوت
         if (screenName === 'game') {
-            this.sounds.background.play().catch(e => console.log('Audio play failed:', e));
-        } else {
-            this.sounds.background.pause();
+            this.sounds.background.play();
         }
     }
 
@@ -302,7 +262,6 @@ class LevelDevilGame {
         document.getElementById('completedLevel').textContent = this.level;
         this.sounds.levelUp.play();
         
-        // إضافة النقاط
         this.score += 100;
         this.updateUI();
     }
@@ -321,27 +280,21 @@ class LevelDevilGame {
     }
 
     initializeLevel() {
-        // مسح العناصر السابقة
         this.platforms = [];
         this.obstacles = [];
         this.collectibles = [];
         
-        // إعادة تعيين اللاعب
         this.player.x = 50;
         this.player.y = 300;
         this.player.velocityX = 0;
         this.player.velocityY = 0;
         this.player.isJumping = false;
         
-        // إنشاء المنصات والعقبات حسب المستوى
         this.createLevelDesign();
-        
-        // تحديث واجهة المستخدم
         this.updateUI();
     }
 
     createLevelDesign() {
-        // التصميم الأساسي للمستويات
         const levelDesigns = {
             1: {
                 platforms: [
@@ -389,7 +342,6 @@ class LevelDevilGame {
         
         const design = levelDesigns[this.level] || levelDesigns[1];
         
-        // إنشاء المنصات
         design.platforms.forEach(plat => {
             this.platforms.push({
                 x: plat.x,
@@ -400,7 +352,6 @@ class LevelDevilGame {
             });
         });
         
-        // إنشاء العقبات
         design.obstacles.forEach(obs => {
             this.obstacles.push({
                 x: obs.x,
@@ -411,7 +362,6 @@ class LevelDevilGame {
             });
         });
         
-        // إنشاء الهدف
         this.goal = {
             x: design.goal.x,
             y: design.goal.y,
@@ -422,7 +372,6 @@ class LevelDevilGame {
     }
 
     handleInput() {
-        // الحركة الأفقية
         this.player.velocityX = 0;
         
         if (this.keys['ArrowLeft'] || this.keys['KeyA']) {
@@ -432,45 +381,34 @@ class LevelDevilGame {
             this.player.velocityX = this.player.speed;
         }
         
-        // القفز
         if ((this.keys['Space'] || this.keys['ArrowUp'] || this.keys['KeyW']) && !this.player.isJumping) {
             this.player.velocityY = this.player.jumpPower;
             this.player.isJumping = true;
-            this.sounds.jump.play().catch(e => console.log('Jump sound failed'));
+            this.sounds.jump.play();
         }
     }
 
     updatePhysics() {
-        // تطبيق الجاذبية
         this.player.velocityY += this.gravity;
         
-        // تطبيق الحركة
         this.player.x += this.player.velocityX;
         this.player.y += this.player.velocityY;
         
-        // الاحتكاك
         this.player.velocityX *= this.friction;
         
-        // حدود الشاشة
         if (this.player.x < 0) this.player.x = 0;
         if (this.player.x > this.canvas.width - this.player.width) {
             this.player.x = this.canvas.width - this.player.width;
         }
         
-        // الأرض
         if (this.player.y > this.canvas.height - this.player.height) {
             this.player.y = this.canvas.height - this.player.height;
             this.player.velocityY = 0;
             this.player.isJumping = false;
         }
         
-        // الاصطدام مع المنصات
         this.handlePlatformCollisions();
-        
-        // الاصطدام مع العقبات
         this.handleObstacleCollisions();
-        
-        // الوصول إلى الهدف
         this.handleGoalCollision();
     }
 
@@ -479,18 +417,15 @@ class LevelDevilGame {
         
         for (let platform of this.platforms) {
             if (this.isColliding(this.player, platform)) {
-                // الاصطدام من الأعلى
                 if (this.player.velocityY > 0 && this.player.y + this.player.height - this.player.velocityY <= platform.y) {
                     this.player.y = platform.y - this.player.height;
                     this.player.velocityY = 0;
                     this.player.isJumping = false;
                 }
-                // الاصطدام من الأسفل
                 else if (this.player.velocityY < 0 && this.player.y - this.player.velocityY >= platform.y + platform.height) {
                     this.player.y = platform.y + platform.height;
                     this.player.velocityY = 0;
                 }
-                // الاصطدام من الجانبين
                 else if (this.player.velocityX !== 0) {
                     if (this.player.x + this.player.width - this.player.velocityX <= platform.x) {
                         this.player.x = platform.x - this.player.width;
@@ -529,7 +464,6 @@ class LevelDevilGame {
         this.updateUI();
         this.sounds.collision.play();
         
-        // إعادة تعيين موقع اللاعب
         this.player.x = 50;
         this.player.y = 300;
         this.player.velocityX = 0;
@@ -546,7 +480,6 @@ class LevelDevilGame {
         document.getElementById('scoreDisplay').textContent = this.score;
         document.getElementById('timeDisplay').textContent = this.timeLeft;
         
-        // تحديد عرض الحياة
         let livesText = '';
         for (let i = 0; i < 3; i++) {
             livesText += i < this.lives ? '❤️' : '♡';
@@ -556,7 +489,7 @@ class LevelDevilGame {
 
     updateTimer() {
         if (this.gameState === 'playing') {
-            this.gameTime += 1/60; // بافتراض 60 إطار في الثانية
+            this.gameTime += 1/60;
             
             if (this.gameTime >= 1) {
                 this.gameTime = 0;
@@ -573,43 +506,33 @@ class LevelDevilGame {
     }
 
     render() {
-        // مسح Canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // رسم الخلفية
         this.drawBackground();
         
-        // رسم المنصات
         this.platforms.forEach(platform => {
             this.drawPlatform(platform);
         });
         
-        // رسم العقبات
         this.obstacles.forEach(obstacle => {
             this.drawObstacle(obstacle);
         });
         
-        // رسم الهدف
         if (this.goal) {
             this.drawGoal(this.goal);
         }
         
-        // رسم اللاعب
         this.drawPlayer();
-        
-        // تأثيرات خاصة
         this.drawEffects();
     }
 
     drawBackground() {
-        // خلفية متدرجة
         const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
         gradient.addColorStop(0, '#87CEEB');
         gradient.addColorStop(1, '#98FB98');
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // سحب بسيطة
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(100, 80, 40, 0, Math.PI * 2);
@@ -621,30 +544,26 @@ class LevelDevilGame {
     drawPlayer() {
         this.ctx.save();
         
-        // تأثير الظل
         this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
         this.ctx.shadowBlur = 10;
         this.ctx.shadowOffsetY = 5;
         
-        // رسم اللاعب
-        if (this.images.player.complete) {
-            this.ctx.drawImage(
-                this.images.player,
-                this.player.x,
-                this.player.y,
-                this.player.width,
-                this.player.height
-            );
-        } else {
-            // رسم بديل إذا لم تحمل الصورة
-            this.ctx.fillStyle = this.player.color;
-            this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
-            
-            // تفاصيل اللاعب
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.fillRect(this.player.x + 10, this.player.y + 10, 8, 8);
-            this.ctx.fillRect(this.player.x + 22, this.player.y + 10, 8, 8);
-        }
+        this.ctx.fillStyle = this.player.color;
+        this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(this.player.x + 8, this.player.y + 10, 8, 8);
+        this.ctx.fillRect(this.player.x + 24, this.player.y + 10, 8, 8);
+        
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillRect(this.player.x + 10, this.player.y + 12, 4, 4);
+        this.ctx.fillRect(this.player.x + 26, this.player.y + 12, 4, 4);
+        
+        this.ctx.strokeStyle = '#000000';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(this.player.x + 20, this.player.y + 25, 6, 0, Math.PI);
+        this.ctx.stroke();
         
         this.ctx.restore();
     }
@@ -652,27 +571,20 @@ class LevelDevilGame {
     drawPlatform(platform) {
         this.ctx.save();
         
-        // تأثير الظل
         this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
         this.ctx.shadowBlur = 5;
         this.ctx.shadowOffsetY = 3;
         
-        if (this.images.platform.complete) {
-            this.ctx.drawImage(
-                this.images.platform,
-                platform.x,
-                platform.y,
-                platform.width,
-                platform.height
-            );
-        } else {
-            this.ctx.fillStyle = platform.color;
-            this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-            
-            // تفاصيل المنصة
-            this.ctx.fillStyle = '#A0522D';
-            this.ctx.fillRect(platform.x, platform.y, platform.width, 5);
+        this.ctx.fillStyle = '#8B4513';
+        this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        
+        this.ctx.fillStyle = '#A0522D';
+        for (let i = 0; i < platform.width; i += 10) {
+            this.ctx.fillRect(platform.x + i, platform.y, 5, platform.height);
         }
+        
+        this.ctx.fillStyle = '#654321';
+        this.ctx.fillRect(platform.x, platform.y, platform.width, 3);
         
         this.ctx.restore();
     }
@@ -684,27 +596,19 @@ class LevelDevilGame {
         this.ctx.shadowBlur = 10;
         this.ctx.shadowOffsetY = 3;
         
-        if (this.images.obstacle.complete) {
-            this.ctx.drawImage(
-                this.images.obstacle,
-                obstacle.x,
-                obstacle.y,
-                obstacle.width,
-                obstacle.height
-            );
-        } else {
-            this.ctx.fillStyle = obstacle.color;
-            this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            
-            // تفاصيل العقبة
-            this.ctx.fillStyle = '#8B0000';
-            this.ctx.beginPath();
-            this.ctx.moveTo(obstacle.x, obstacle.y);
-            this.ctx.lineTo(obstacle.x + obstacle.width, obstacle.y);
-            this.ctx.lineTo(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height);
-            this.ctx.closePath();
-            this.ctx.fill();
-        }
+        this.ctx.fillStyle = '#FF0000';
+        this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        
+        this.ctx.fillStyle = '#8B0000';
+        this.ctx.beginPath();
+        this.ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y);
+        this.ctx.lineTo(obstacle.x, obstacle.y + obstacle.height);
+        this.ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        this.ctx.fillRect(obstacle.x + 2, obstacle.y + 2, obstacle.width/2 - 2, 5);
         
         this.ctx.restore();
     }
@@ -716,46 +620,43 @@ class LevelDevilGame {
         this.ctx.shadowBlur = 15;
         this.ctx.shadowOffsetY = 5;
         
-        if (this.images.goal.complete) {
-            this.ctx.drawImage(
-                this.images.goal,
-                goal.x,
-                goal.y,
-                goal.width,
-                goal.height
-            );
-        } else {
-            this.ctx.fillStyle = goal.color;
-            this.ctx.beginPath();
-            this.ctx.arc(
-                goal.x + goal.width/2,
-                goal.y + goal.height/2,
-                goal.width/2,
-                0,
-                Math.PI * 2
-            );
-            this.ctx.fill();
-            
-            // تأثير وميض
-            this.ctx.strokeStyle = '#FFFFFF';
-            this.ctx.lineWidth = 3;
-            this.ctx.stroke();
-        }
+        this.ctx.fillStyle = '#00FF00';
+        this.ctx.beginPath();
+        this.ctx.arc(
+            goal.x + goal.width/2,
+            goal.y + goal.height/2,
+            goal.width/2,
+            0,
+            Math.PI * 2
+        );
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = '#FFFFFF';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+        
+        const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${pulse * 0.5})`;
+        this.ctx.beginPath();
+        this.ctx.arc(
+            goal.x + goal.width/2,
+            goal.y + goal.height/2,
+            goal.width/3,
+            0,
+            Math.PI * 2
+        );
+        this.ctx.fill();
         
         this.ctx.restore();
     }
 
     drawEffects() {
-        // تأثيرات بصرية إضافية
-        if (this.gameState === 'playing') {
-            // وميض المؤقت عندما يكون الوقت قليلاً
-            if (this.timeLeft <= 10) {
-                this.ctx.save();
-                this.ctx.globalAlpha = Math.sin(Date.now() / 200) * 0.5 + 0.5;
-                this.ctx.fillStyle = '#FF0000';
-                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                this.ctx.restore();
-            }
+        if (this.gameState === 'playing' && this.timeLeft <= 10) {
+            this.ctx.save();
+            this.ctx.globalAlpha = Math.sin(Date.now() / 200) * 0.5 + 0.5;
+            this.ctx.fillStyle = '#FF0000';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.restore();
         }
     }
 
