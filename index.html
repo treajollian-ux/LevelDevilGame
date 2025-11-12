@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Devil Game - لعبة مستوى الشيطان</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- شاشة البداية -->
+    <div id="startScreen" class="screen">
+        <div class="screen-content">
+            <h1>🎮 Level Devil Game</h1>
+            <h2>لعبة مستوى الشيطان</h2>
+            <div class="character-preview">
+                <img src="images/character.png" alt="الشخصية" id="previewCharacter">
+            </div>
+            <button id="startButton" class="btn btn-primary">ابدأ اللعبة</button>
+            <button id="instructionsButton" class="btn btn-secondary">كيفية اللعب</button>
+            <div class="game-stats">
+                <div class="stat">
+                    <span>🚀</span>
+                    <span>5 مستويات</span>
+                </div>
+                <div class="stat">
+                    <span>⭐</span>
+                    <span>تحدي عالي</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة التعليمات -->
+    <div id="instructionsScreen" class="screen hidden">
+        <div class="screen-content">
+            <h2>كيفية اللعب</h2>
+            <div class="instructions">
+                <div class="instruction-item">
+                    <span>⬅️ ➡️</span>
+                    <p>استخدم مفاتيح الأسهم لليسار واليمين للتحرك</p>
+                </div>
+                <div class="instruction-item">
+                    <span>⬆️ أو مسافة</span>
+                    <p>اضغط سهم الأعلى أو المسافة للقفز</p>
+                </div>
+                <div class="instruction-item">
+                    <span>🎯</span>
+                    <p>وصل إلى الهدف الأخضر لإنهاء المستوى</p>
+                </div>
+                <div class="instruction-item">
+                    <span>⚠️</span>
+                    <p>تجنب العقبات الحمراء والمسامير</p>
+                </div>
+            </div>
+            <button id="backButton" class="btn btn-secondary">رجوع</button>
+        </div>
+    </div>
+
+    <!-- شاشة اللعبة الرئيسية -->
+    <div id="gameScreen" class="screen hidden">
+        <div class="game-header">
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">المستوى:</span>
+                    <span id="levelDisplay" class="stat-value">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">النتيجة:</span>
+                    <span id="scoreDisplay" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">الحياة:</span>
+                    <span id="livesDisplay" class="stat-value">❤️❤️❤️</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">الوقت:</span>
+                    <span id="timeDisplay" class="stat-value">60</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- منطقة اللعبة -->
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+        <!-- عناصر التحكم للجوال -->
+        <div class="mobile-controls">
+            <button id="leftBtn" class="control-btn">⬅️</button>
+            <button id="jumpBtn" class="control-btn">⬆️</button>
+            <button id="rightBtn" class="control-btn">➡️</button>
+        </div>
+    </div>
+
+    <!-- شاشة نهاية اللعبة -->
+    <div id="gameOverScreen" class="screen hidden">
+        <div class="screen-content">
+            <h2 id="gameOverTitle">انتهت اللعبة!</h2>
+            <div class="final-stats">
+                <p>النتيجة النهائية: <span id="finalScore">0</span></p>
+                <p>أعلى مستوى: <span id="finalLevel">1</span></p>
+            </div>
+            <button id="restartButton" class="btn btn-primary">العب مرة أخرى</button>
+            <button id="menuButton" class="btn btn-secondary">القائمة الرئيسية</button>
+        </div>
+    </div>
+
+    <!-- شاشة إكمال المستوى -->
+    <div id="levelCompleteScreen" class="screen hidden">
+        <div class="screen-content">
+            <h2>🎉 أحسنت!</h2>
+            <p>لقد أكملت المستوى <span id="completedLevel">1</span></p>
+            <div class="reward">
+                <span>+100 نقطة</span>
+            </div>
+            <button id="nextLevelButton" class="btn btn-primary">المستوى التالي</button>
+        </div>
+    </div>
+
+    <!-- عناصر الصوت -->
+    <audio id="backgroundMusic" loop>
+        <source src="sounds/background-music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="jumpSound">
+        <source src="sounds/jump.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="collisionSound">
+        <source src="sounds/collision.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="levelUpSound">
+        <source src="sounds/level-up.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="game.js"></script>
+</body>
+</html>
