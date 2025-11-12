@@ -1,3 +1,118 @@
+// Sound Generator - بديل لملفات الصوت
+class SoundGenerator {
+    constructor() {
+        this.audioContext = null;
+        this.init();
+    }
+
+    init() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.log('Web Audio API not supported');
+        }
+    }
+
+    createJumpSound() {
+        if (!this.audioContext) return;
+        
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.3);
+        
+        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.3);
+    }
+
+    createCollisionSound() {
+        if (!this.audioContext) return;
+        
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(150, this.audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.5);
+        
+        gainNode.gain.setValueAtTime(0.5, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.5);
+    }
+
+    createLevelUpSound() {
+        if (!this.audioContext) return;
+        
+        const times = [0, 0.1, 0.2, 0.3];
+        const frequencies = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        
+        times.forEach((time, index) => {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequencies[index], this.audioContext.currentTime + time);
+            
+            gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime + time);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + time + 0.3);
+            
+            oscillator.start(this.audioContext.currentTime + time);
+            oscillator.stop(this.audioContext.currentTime + time + 0.3);
+        });
+    }
+
+    createBackgroundMusic() {
+        if (!this.audioContext) return;
+        
+        // موسيقى خلفية بسيطة
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        const filter = this.audioContext.createBiquadFilter();
+        
+        oscillator.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        oscillator.type = 'sine';
+        filter.type = 'lowpass';
+        filter.frequency.value = 800;
+        
+        gainNode.gain.value = 0.1;
+        
+        // نمط لحني بسيط
+        const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+        let currentTime = this.audioContext.currentTime;
+        
+        const playNote = (frequency, duration) => {
+            oscillator.frequency.setValueAtTime(frequency, currentTime);
+            currentTime += duration;
+        };
+        
+        // لحن متكرر
+        setInterval(() => {
+            currentTime = this.audioContext.currentTime;
+            notes.forEach((note, index) => {
+                playNote(note, 0.3);
+            });
+        }, 2400);
+        
+        oscillator.start();
+    }
+}
 class LevelDevilGame {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
