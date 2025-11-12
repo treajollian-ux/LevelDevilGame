@@ -4,19 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Level Devil Game - لعبة مستوى الشيطان</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- شاشة البداية -->
     <div id="startScreen" class="screen">
         <div class="screen-content">
+            <div class="header-icons">
+                <button id="settingsBtn" class="icon-btn" title="الإعدادات">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button id="exitBtn" class="icon-btn" title="خروج">
+                    <i class="fas fa-door-open"></i>
+                </button>
+            </div>
+            
             <h1>🎮 Level Devil Game</h1>
             <h2>لعبة مستوى الشيطان</h2>
+            
             <div class="character-preview">
                 <div id="previewCharacter" class="character-demo"></div>
             </div>
-            <button id="startButton" class="btn btn-primary">ابدأ اللعبة</button>
-            <button id="instructionsButton" class="btn btn-secondary">كيفية اللعب</button>
+            
+            <button id="startButton" class="btn btn-primary">
+                <i class="fas fa-play"></i> ابدأ اللعبة
+            </button>
+            <button id="instructionsButton" class="btn btn-secondary">
+                <i class="fas fa-book"></i> كيفية اللعب
+            </button>
+            <button id="achievementsButton" class="btn btn-secondary">
+                <i class="fas fa-trophy"></i> الإنجازات
+            </button>
+            
             <div class="game-stats">
                 <div class="stat">
                     <span>🚀</span>
@@ -33,7 +53,7 @@
     <!-- شاشة التعليمات -->
     <div id="instructionsScreen" class="screen hidden">
         <div class="screen-content">
-            <h2>كيفية اللعب</h2>
+            <h2><i class="fas fa-book"></i> كيفية اللعب</h2>
             <div class="instructions">
                 <div class="instruction-item">
                     <span>⬅️ ➡️</span>
@@ -51,14 +71,102 @@
                     <span>⚠️</span>
                     <p>تجنب العقبات الحمراء والمسامير</p>
                 </div>
+                <div class="instruction-item">
+                    <span>🔻</span>
+                    <p>لا تسقط من المنصة وإلا ستخسر!</p>
+                </div>
             </div>
-            <button id="backButton" class="btn btn-secondary">رجوع</button>
+            <button id="backButton" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة الإنجازات -->
+    <div id="achievementsScreen" class="screen hidden">
+        <div class="screen-content">
+            <h2><i class="fas fa-trophy"></i> الإنجازات</h2>
+            <div class="achievements-list">
+                <div class="achievement-item completed">
+                    <i class="fas fa-medal"></i>
+                    <div class="achievement-info">
+                        <h3>المبتدئ</h3>
+                        <p>أكمل المستوى الأول</p>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <i class="fas fa-medal"></i>
+                    <div class="achievement-info">
+                        <h3>المحترف</h3>
+                        <p>أكمل 3 مستويات</p>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <i class="fas fa-medal"></i>
+                    <div class="achievement-info">
+                        <h3>البطل</h3>
+                        <p>أكمل جميع المستويات</p>
+                    </div>
+                </div>
+            </div>
+            <button id="backFromAchievements" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> رجوع
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة الإعدادات -->
+    <div id="settingsScreen" class="screen hidden">
+        <div class="screen-content">
+            <h2><i class="fas fa-cog"></i> الإعدادات</h2>
+            <div class="settings-options">
+                <div class="setting-item">
+                    <label for="musicVolume">مستوى الموسيقى:</label>
+                    <input type="range" id="musicVolume" min="0" max="100" value="50">
+                    <span id="musicValue">50%</span>
+                </div>
+                <div class="setting-item">
+                    <label for="soundVolume">مستوى الأصوات:</label>
+                    <input type="range" id="soundVolume" min="0" max="100" value="70">
+                    <span id="soundValue">70%</span>
+                </div>
+                <div class="setting-item">
+                    <label for="language">اللغة:</label>
+                    <select id="language">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="theme">السمة:</label>
+                    <select id="theme">
+                        <option value="default">افتراضي</option>
+                        <option value="dark">مظلم</option>
+                        <option value="light">فاتح</option>
+                    </select>
+                </div>
+            </div>
+            <div class="settings-buttons">
+                <button id="saveSettings" class="btn btn-primary">حفظ</button>
+                <button id="cancelSettings" class="btn btn-secondary">إلغاء</button>
+            </div>
         </div>
     </div>
 
     <!-- شاشة اللعبة الرئيسية -->
     <div id="gameScreen" class="screen hidden">
         <div class="game-header">
+            <div class="game-controls">
+                <button id="pauseBtn" class="icon-btn" title="إيقاف مؤقت">
+                    <i class="fas fa-pause"></i>
+                </button>
+                <button id="restartBtn" class="icon-btn" title="إعادة">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <button id="menuBtn" class="icon-btn" title="القائمة">
+                    <i class="fas fa-home"></i>
+                </button>
+            </div>
             <div class="stats">
                 <div class="stat-item">
                     <span class="stat-label">المستوى:</span>
@@ -90,6 +198,24 @@
         </div>
     </div>
 
+    <!-- شاشة الإيقاف المؤقت -->
+    <div id="pauseScreen" class="screen hidden">
+        <div class="screen-content">
+            <h2><i class="fas fa-pause"></i> اللعبة متوقفة</h2>
+            <div class="pause-options">
+                <button id="resumeBtn" class="btn btn-primary">
+                    <i class="fas fa-play"></i> متابعة
+                </button>
+                <button id="restartFromPause" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> إعادة
+                </button>
+                <button id="menuFromPause" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> القائمة
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- شاشة نهاية اللعبة -->
     <div id="gameOverScreen" class="screen hidden">
         <div class="screen-content">
@@ -98,8 +224,14 @@
                 <p>النتيجة النهائية: <span id="finalScore">0</span></p>
                 <p>أعلى مستوى: <span id="finalLevel">1</span></p>
             </div>
-            <button id="restartButton" class="btn btn-primary">العب مرة أخرى</button>
-            <button id="menuButton" class="btn btn-secondary">القائمة الرئيسية</button>
+            <div class="game-over-buttons">
+                <button id="restartButton" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> العب مرة أخرى
+                </button>
+                <button id="menuButton" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> القائمة الرئيسية
+                </button>
+            </div>
         </div>
     </div>
 
@@ -111,7 +243,21 @@
             <div class="reward">
                 <span>+100 نقطة</span>
             </div>
-            <button id="nextLevelButton" class="btn btn-primary">المستوى التالي</button>
+            <button id="nextLevelButton" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> المستوى التالي
+            </button>
+        </div>
+    </div>
+
+    <!-- شاشة الخروج -->
+    <div id="exitScreen" class="screen hidden">
+        <div class="screen-content">
+            <h2><i class="fas fa-door-open"></i> تأكيد الخروج</h2>
+            <p>هل أنت متأكد أنك تريد الخروج من اللعبة؟</p>
+            <div class="exit-buttons">
+                <button id="confirmExit" class="btn btn-primary">نعم، اختر</button>
+                <button id="cancelExit" class="btn btn-secondary">إلغاء</button>
+            </div>
         </div>
     </div>
 
