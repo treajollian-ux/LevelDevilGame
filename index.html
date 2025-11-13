@@ -9,7 +9,7 @@
 </head>
 <body>
     <!-- شاشة البداية -->
-    <div id="startScreen" class="screen">
+    <div id="startScreen" class="screen active">
         <div class="screen-content">
             <div class="header-icons">
                 <button id="settingsBtn" class="icon-btn" title="الإعدادات">
@@ -51,7 +51,7 @@
     </div>
 
     <!-- شاشة التعليمات -->
-    <div id="instructionsScreen" class="screen hidden">
+    <div id="instructionsScreen" class="screen">
         <div class="screen-content">
             <h2><i class="fas fa-book"></i> كيفية اللعب</h2>
             <div class="instructions">
@@ -83,7 +83,7 @@
     </div>
 
     <!-- شاشة الإنجازات -->
-    <div id="achievementsScreen" class="screen hidden">
+    <div id="achievementsScreen" class="screen">
         <div class="screen-content">
             <h2><i class="fas fa-trophy"></i> الإنجازات</h2>
             <div class="achievements-list">
@@ -123,7 +123,7 @@
     </div>
 
     <!-- شاشة الإعدادات -->
-    <div id="settingsScreen" class="screen hidden">
+    <div id="settingsScreen" class="screen">
         <div class="screen-content">
             <h2><i class="fas fa-cog"></i> الإعدادات</h2>
             <div class="settings-options">
@@ -140,25 +140,21 @@
                 <div class="setting-item">
                     <label for="backgroundImage">صورة الخلفية:</label>
                     <input type="file" id="backgroundImage" accept="image/*">
+                    <div id="backgroundPreview" class="image-preview"></div>
                 </div>
                 <div class="setting-item">
                     <label for="characterImage">صورة الشخصية:</label>
                     <input type="file" id="characterImage" accept="image/*">
+                    <div id="characterPreview" class="image-preview"></div>
                 </div>
                 <div class="setting-item">
                     <label for="customMusic">موسيقى الخلفية:</label>
                     <input type="file" id="customMusic" accept="audio/*">
-                </div>
-                <div class="setting-item">
-                    <label for="language">اللغة:</label>
-                    <select id="language">
-                        <option value="ar">العربية</option>
-                        <option value="en">English</option>
-                    </select>
+                    <div id="musicInfo" class="file-info"></div>
                 </div>
             </div>
             <div class="settings-buttons">
-                <button id="saveSettings" class="btn btn-primary">حفظ</button>
+                <button id="saveSettings" class="btn btn-primary">حفظ الإعدادات</button>
                 <button id="cancelSettings" class="btn btn-secondary">إلغاء</button>
                 <button id="resetSettings" class="btn btn-secondary">إعادة الضبط</button>
             </div>
@@ -166,7 +162,7 @@
     </div>
 
     <!-- شاشة اللعبة الرئيسية -->
-    <div id="gameScreen" class="screen hidden">
+    <div id="gameScreen" class="screen">
         <div class="game-header">
             <div class="game-controls">
                 <button id="pauseBtn" class="icon-btn" title="إيقاف مؤقت">
@@ -211,7 +207,7 @@
     </div>
 
     <!-- شاشة الإيقاف المؤقت -->
-    <div id="pauseScreen" class="screen hidden">
+    <div id="pauseScreen" class="screen">
         <div class="screen-content">
             <h2><i class="fas fa-pause"></i> اللعبة متوقفة</h2>
             <div class="pause-options">
@@ -229,7 +225,7 @@
     </div>
 
     <!-- شاشة نهاية اللعبة -->
-    <div id="gameOverScreen" class="screen hidden">
+    <div id="gameOverScreen" class="screen">
         <div class="screen-content">
             <h2 id="gameOverTitle">انتهت اللعبة!</h2>
             <div class="final-stats">
@@ -248,7 +244,7 @@
     </div>
 
     <!-- شاشة إكمال المستوى -->
-    <div id="levelCompleteScreen" class="screen hidden">
+    <div id="levelCompleteScreen" class="screen">
         <div class="screen-content">
             <h2>🎉 أحسنت!</h2>
             <p>لقد أكملت المستوى <span id="completedLevel">1</span></p>
@@ -262,7 +258,7 @@
     </div>
 
     <!-- شاشة الخروج -->
-    <div id="exitScreen" class="screen hidden">
+    <div id="exitScreen" class="screen">
         <div class="screen-content">
             <h2><i class="fas fa-door-open"></i> تأكيد الخروج</h2>
             <p>هل أنت متأكد أنك تريد الخروج من اللعبة؟</p>
@@ -272,23 +268,6 @@
             </div>
         </div>
     </div>
-
-    <!-- عناصر الصوت -->
-    <audio id="backgroundMusic" loop>
-        <source src="" type="audio/mpeg">
-    </audio>
-    <audio id="jumpSound">
-        <source src="" type="audio/mpeg">
-    </audio>
-    <audio id="collisionSound">
-        <source src="" type="audio/mpeg">
-    </audio>
-    <audio id="levelUpSound">
-        <source src="" type="audio/mpeg">
-    </audio>
-    <audio id="bombSound">
-        <source src="" type="audio/mpeg">
-    </audio>
 
     <script src="game.js"></script>
 </body>
