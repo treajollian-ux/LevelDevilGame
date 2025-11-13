@@ -142,8 +142,9 @@ class LevelDevilGame {
             jumpPower: -15,
             isJumping: false,
             facingRight: true,
-            animationState: 'idle',
-            animationFrame: 0
+            animationState: 'idle', // idle, running, jumping
+            animationFrame: 0,
+            lastAnimationTime: Date.now() // إضافة هذا السطر
         };
         
         // الفيزياء
@@ -522,19 +523,25 @@ class LevelDevilGame {
         if (this.keys['ArrowLeft']) {
             this.player.velocityX = -this.player.speed;
             this.player.facingRight = false;
-            this.player.animationState = 'running';
+            if (!this.player.isJumping) {
+                this.player.animationState = 'running';
+            }
         }
         if (this.keys['ArrowRight']) {
             this.player.velocityX = this.player.speed;
             this.player.facingRight = true;
-            this.player.animationState = 'running';
+            if (!this.player.isJumping) {
+                this.player.animationState = 'running';
+            }
         }
         
-        if (this.player.velocityX === 0) {
+        // إذا لم يكن هناك حركة أفقية
+        if (this.player.velocityX === 0 && !this.player.isJumping) {
             this.player.animationState = 'idle';
         }
         
-        if ((this.keys['Space'] || this.keys['ArrowUp']) && !this.player.isJumping) {
+        // القفز
+        if ((this.keys['Space'] || this.keys['ArrowUp'] || this.keys['KeyW']) && !this.player.isJumping) {
             this.player.velocityY = this.player.jumpPower;
             this.player.isJumping = true;
             this.player.animationState = 'jumping';
@@ -606,7 +613,7 @@ class LevelDevilGame {
     }
 
     handlePlatformCollisions() {
-        this.player.isJumping = true;
+        let onPlatform = false;
         
         // المنصات الثابتة
         this.platforms.forEach(platform => {
@@ -615,6 +622,14 @@ class LevelDevilGame {
                     this.player.y = platform.y - this.player.height;
                     this.player.velocityY = 0;
                     this.player.isJumping = false;
+                    onPlatform = true;
+                    
+                    // العودة إلى حالة الركض إذا كان يتحرك
+                    if (this.player.velocityX !== 0) {
+                        this.player.animationState = 'running';
+                    } else {
+                        this.player.animationState = 'idle';
+                    }
                 }
             }
         });
@@ -626,10 +641,22 @@ class LevelDevilGame {
                     this.player.y = platform.y - this.player.height;
                     this.player.velocityY = 0;
                     this.player.isJumping = false;
+                    onPlatform = true;
                     this.player.x += platform.speed * platform.direction;
+                    
+                    if (this.player.velocityX !== 0) {
+                        this.player.animationState = 'running';
+                    } else {
+                        this.player.animationState = 'idle';
+                    }
                 }
             }
         });
+        
+        // إذا لم يكن على منصة، وهو ليس في حالة قفز، فاجعل حالة الرسوم المتحركة حسب السرعة الأفقية
+        if (!onPlatform && this.player.velocityY > 0 && this.player.animationState !== 'jumping') {
+            this.player.animationState = 'jumping';
+        }
     }
 
     handleObstacleCollisions() {
@@ -657,7 +684,12 @@ class LevelDevilGame {
     }
 
     updateAnimation() {
-        this.player.animationFrame = (this.player.animationFrame + 1) % 4;
+        const now = Date.now();
+        // تحديث الرسوم المتحركة كل 100 مللي ثانية
+        if (now - this.player.lastAnimationTime > 100) {
+            this.player.animationFrame = (this.player.animationFrame + 1) % 4;
+            this.player.lastAnimationTime = now;
+        }
     }
 
     isColliding(rect1, rect2) {
@@ -710,6 +742,151 @@ class LevelDevilGame {
             }
             
             this.updateUI();
+        }
+    }
+
+    drawPlayer() {
+        const charImage = this.mediaManager.getImage('customCharacter');
+        
+        if (charImage) {
+            // استخدام الصورة المخصصة
+            this.ctx.save();
+            if (!this.player.facingRight) {
+                this.ctx.scale(-1, 1);
+                this.ctx.drawImage(charImage, -this.player.x - this.player.width, this.player.y, this.player.width, this.player.height);
+            } else {
+                this.ctx.drawImage(charImage, this.player.x, this.player.y, this.player.width, this.player.height);
+            }
+            this.ctx.restore();
+        } else {
+            // رسم افتراضي مع رسوم متحركة محسنة
+            this.ctx.save();
+            
+            if (!this.player.facingRight) {
+                this.ctx.scale(-1, 1);
+                this.ctx.translate(-this.canvas.width, 0);
+            }
+            
+            const drawX = this.player.facingRight ? this.player.x : this.canvas.width - this.player.x - this.player.width;
+            
+            // الجسم مع تأثير الظل
+            this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            this.ctx.shadowBlur = 5;
+            this.ctx.shadowOffsetY = 3;
+            
+            this.ctx.fillStyle = '#FF6B6B';
+            this.ctx.fillRect(drawX, this.player.y, this.player.width, this.player.height);
+            
+            this.ctx.shadowBlur = 0; // إزالة الظل للتفاصيل
+            
+            // الرأس
+            this.ctx.fillStyle = '#FF6B6B';
+            this.ctx.fillRect(drawX + 5, this.player.y - 10, this.player.width - 10, 15);
+            
+            // العينين
+            this.ctx.fillStyle = 'white';
+            this.ctx.fillRect(drawX + 15, this.player.y - 5, 6, 6);
+            this.ctx.fillRect(drawX + this.player.width - 21, this.player.y - 5, 6, 6);
+            
+            this.ctx.fillStyle = 'black';
+            this.ctx.fillRect(drawX + 16, this.player.y - 4, 4, 4);
+            this.ctx.fillRect(drawX + this.player.width - 20, this.player.y - 4, 4, 4);
+            
+            // الفم - يتغير حسب الحركة
+            this.ctx.strokeStyle = 'black';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            
+            if (this.player.animationState === 'running') {
+                // فم مبتسم عند الحركة
+                this.ctx.arc(drawX + this.player.width/2, this.player.y + 2, 4, 0, Math.PI);
+            } else {
+                // فم عادي عند الوقوف
+                this.ctx.moveTo(drawX + this.player.width/2 - 4, this.player.y + 2);
+                this.ctx.lineTo(drawX + this.player.width/2 + 4, this.player.y + 2);
+            }
+            this.ctx.stroke();
+            
+            // الأرجل المتحركة - تحسين الحركة
+            this.ctx.fillStyle = '#333';
+            const legMovement = Math.sin(this.player.animationFrame * 0.8) * 8;
+            
+            if (this.player.animationState === 'running') {
+                // حركة المشي
+                this.ctx.fillRect(drawX + 10, this.player.y + this.player.height, 8, 15 + legMovement);
+                this.ctx.fillRect(drawX + this.player.width - 18, this.player.y + this.player.height, 8, 15 - legMovement);
+            } else if (this.player.animationState === 'jumping') {
+                // وضعية القفز
+                this.ctx.fillRect(drawX + 12, this.player.y + this.player.height, 6, 12);
+                this.ctx.fillRect(drawX + this.player.width - 18, this.player.y + this.player.height, 6, 12);
+            } else {
+                // وضعية الوقوف
+                this.ctx.fillRect(drawX + 12, this.player.y + this.player.height, 6, 15);
+                this.ctx.fillRect(drawX + this.player.width - 18, this.player.y + this.player.height, 6, 15);
+            }
+            
+            // الذراعين المتحركة
+            this.ctx.fillStyle = '#FF6B6B';
+            const armMovement = Math.sin(this.player.animationFrame * 0.8) * 5;
+            
+            if (this.player.animationState === 'running') {
+                this.ctx.fillRect(drawX - 5, this.player.y + 10, 8, 8 + armMovement);
+                this.ctx.fillRect(drawX + this.player.width - 3, this.player.y + 10, 8, 8 - armMovement);
+            } else if (this.player.animationState === 'jumping') {
+                this.ctx.fillRect(drawX - 3, this.player.y + 5, 6, 12);
+                this.ctx.fillRect(drawX + this.player.width - 3, this.player.y + 5, 6, 12);
+            } else {
+                this.ctx.fillRect(drawX - 3, this.player.y + 10, 6, 10);
+                this.ctx.fillRect(drawX + this.player.width - 3, this.player.y + 10, 6, 10);
+            }
+            
+            this.ctx.restore();
+            
+            // تأثير الظل تحت اللاعب
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            this.ctx.beginPath();
+            this.ctx.ellipse(
+                this.player.x + this.player.width/2,
+                this.player.y + this.player.height + 8,
+                this.player.width/3,
+                4,
+                0, 0, Math.PI * 2
+            );
+            this.ctx.fill();
+        }
+        
+        // رسم تأثيرات الحركة
+        this.drawMovementEffects();
+    }
+
+    drawMovementEffects() {
+        if (this.player.animationState === 'running') {
+            // تأثير غبار عند الحركة
+            this.ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
+            for (let i = 0; i < 3; i++) {
+                const dustX = this.player.facingRight ? 
+                    this.player.x - 5 - i * 3 : 
+                    this.player.x + this.player.width + 5 + i * 3;
+                const dustY = this.player.y + this.player.height - 5;
+                const dustSize = Math.random() * 3 + 1;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(dustX, dustY, dustSize, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
+        
+        if (this.player.animationState === 'jumping') {
+            // تأثير قفز
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            this.ctx.beginPath();
+            this.ctx.arc(
+                this.player.x + this.player.width/2,
+                this.player.y + this.player.height,
+                this.player.width/4,
+                0, Math.PI
+            );
+            this.ctx.fill();
         }
     }
 
@@ -795,58 +972,6 @@ class LevelDevilGame {
         this.ctx.beginPath();
         this.ctx.arc(this.goal.x + this.goal.width/2, this.goal.y + this.goal.height/2, this.goal.width/2, 0, Math.PI * 2);
         this.ctx.fill();
-    }
-
-    drawPlayer() {
-        const charImage = this.mediaManager.getImage('customCharacter');
-        
-        if (charImage) {
-            // استخدام الصورة المخصصة
-            this.ctx.save();
-            if (!this.player.facingRight) {
-                this.ctx.scale(-1, 1);
-                this.ctx.drawImage(charImage, -this.player.x - this.player.width, this.player.y, this.player.width, this.player.height);
-            } else {
-                this.ctx.drawImage(charImage, this.player.x, this.player.y, this.player.width, this.player.height);
-            }
-            this.ctx.restore();
-        } else {
-            // رسم افتراضي مع رسوم متحركة
-            this.ctx.save();
-            
-            if (!this.player.facingRight) {
-                this.ctx.scale(-1, 1);
-                this.ctx.translate(-this.canvas.width, 0);
-            }
-            
-            const drawX = this.player.facingRight ? this.player.x : this.canvas.width - this.player.x - this.player.width;
-            
-            // الجسم
-            this.ctx.fillStyle = '#FF6B6B';
-            this.ctx.fillRect(drawX, this.player.y, this.player.width, this.player.height);
-            
-            // الأرجل المتحركة
-            this.ctx.fillStyle = '#333';
-            if (this.player.animationState === 'running') {
-                const legOffset = Math.sin(this.player.animationFrame * 0.5) * 5;
-                this.ctx.fillRect(drawX + 10, this.player.y + this.player.height - 10, 8, 15 + legOffset);
-                this.ctx.fillRect(drawX + this.player.width - 18, this.player.y + this.player.height - 10, 8, 15 - legOffset);
-            } else {
-                this.ctx.fillRect(drawX + 10, this.player.y + this.player.height - 10, 8, 15);
-                this.ctx.fillRect(drawX + this.player.width - 18, this.player.y + this.player.height - 10, 8, 15);
-            }
-            
-            // الوجه
-            this.ctx.fillStyle = 'white';
-            this.ctx.fillRect(drawX + 15, this.player.y + 15, 8, 8);
-            this.ctx.fillRect(drawX + this.player.width - 23, this.player.y + 15, 8, 8);
-            
-            this.ctx.fillStyle = 'black';
-            this.ctx.fillRect(drawX + 17, this.player.y + 17, 4, 4);
-            this.ctx.fillRect(drawX + this.player.width - 21, this.player.y + 17, 4, 4);
-            
-            this.ctx.restore();
-        }
     }
 
     drawFallWarning() {
